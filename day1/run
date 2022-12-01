@@ -1,4 +1,7 @@
-file_data = File.read("input")
+#!/usr/bin/env ruby
+
+file_path = File.join(File.dirname(__FILE__), "/input")
+file_data = File.read(file_path)
 
 grouped = file_data.split("\n\n")
 grouped_sum = grouped.map { |t| t.split("\n").map(&:to_i).sum }
@@ -6,4 +9,5 @@ sorted = grouped_sum.sort
 
 puts "Part1: #{sorted.last}"
 puts "Part2: #{sorted.last(3).sum}"
+
 
