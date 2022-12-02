@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+RULE_MAP = {
+  A: {
+   X: 3,
+   Y: 6,
+   Z: 0
+  },
+  B: {
+   X: 0,
+   Y: 3,
+   Z: 6
+  },
+  C: {
+   X: 6,
+   Y: 0,
+   Z: 3
+  }
+} 
+SHAPE_SCORE_MAP = {
+  X: 1,
+  Y: 2,
+  Z: 3
+}
+TACTIC_MAP = {
+  A: {
+   X: :Z,
+   Y: :X,
+   Z: :Y
+  },
+  B: {
+   X: :X,
+   Y: :Y,
+   Z: :Z
+  },
+  C: {
+   X: :Y,
+   Y: :Z,
+   Z: :X
+  }
+}
+
+
+file_path = File.join(File.dirname(__FILE__), "/input")
+file_data = File.read(file_path)
+
+rounds = file_data.split("\n")
+
+def calculate_total_score(round_shapes)
+  total_score = round_shapes.map do |shapes|
+    opponent_shape =  shapes[0].to_sym
+    my_shape = shapes[1].to_sym
+    score = RULE_MAP[opponent_shape][my_shape]
+    shape_score = SHAPE_SCORE_MAP[my_shape]
+
+    score + shape_score
+  end.sum
+
+end
+
+pt1_shapes = rounds.map { |string| string.split(' ') }
+pt1_total_score = calculate_total_score(pt1_shapes)
+
+puts "Pt1, #{pt1_total_score}"
+
+pt2_shapes = pt1_shapes.map do |shapes|
+  opponent_shape = shapes[0].to_sym
+  my_shape = TACTIC_MAP[opponent_shape][shapes[1].to_sym]
+
+  [opponent_shape, my_shape]
+end
+
+pt2_total_score = calculate_total_score(pt2_shapes)
+puts "Pt2, #{pt2_total_score}"
+
