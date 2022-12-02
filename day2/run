@@ -16,7 +16,7 @@ RULE_MAP = {
    Y: 0,
    Z: 3
   }
-} 
+}
 SHAPE_SCORE_MAP = {
   X: 1,
   Y: 2,
@@ -45,31 +45,34 @@ file_path = File.join(File.dirname(__FILE__), "/input")
 file_data = File.read(file_path)
 
 rounds = file_data.split("\n")
+round_shapes = rounds.map do |string|
+  shapes = string.split(' ')
+  shapes.map(&:to_sym)
+end
 
-def calculate_total_score(round_shapes)
+def play(round_shapes)
   total_score = round_shapes.map do |shapes|
-    opponent_shape =  shapes[0].to_sym
-    my_shape = shapes[1].to_sym
+    opponent_shape =  shapes[0]
+    my_shape = shapes[1]
     score = RULE_MAP[opponent_shape][my_shape]
     shape_score = SHAPE_SCORE_MAP[my_shape]
 
     score + shape_score
   end.sum
-
 end
 
-pt1_shapes = rounds.map { |string| string.split(' ') }
-pt1_total_score = calculate_total_score(pt1_shapes)
+def build_new_round_shapes(shapes)
+  shapes.map do |shapes|
+    opponent_shape = shapes[0]
+    my_shape = TACTIC_MAP[opponent_shape][shapes[1]]
 
+    [opponent_shape, my_shape]
+  end
+end
+
+pt1_total_score = play(round_shapes)
 puts "Pt1, #{pt1_total_score}"
 
-pt2_shapes = pt1_shapes.map do |shapes|
-  opponent_shape = shapes[0].to_sym
-  my_shape = TACTIC_MAP[opponent_shape][shapes[1].to_sym]
-
-  [opponent_shape, my_shape]
-end
-
-pt2_total_score = calculate_total_score(pt2_shapes)
+new_round_shapes = build_new_round_shapes(round_shapes)
+pt2_total_score = play(new_round_shapes)
 puts "Pt2, #{pt2_total_score}"
-
