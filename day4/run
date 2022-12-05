@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+def read_input_file
+  file_path = File.join(File.dirname(__FILE__), "/input")
+  file_data = File.read(file_path)
+end
+
+pairs = read_input_file.split("\n").map do |line|
+  line.split(",").map { |pair| pair.split('-').map(&:to_i) }
+end
+
+fully_contained_pairs_count = pairs.count do |pair|
+  range1 = (pair[0][0]..pair[0][1]).to_a
+  range2 = (pair[1][0]..pair[1][1]).to_a
+
+  (range1 -  range2).empty? || (range2 -  range1).empty?
+end
+
+puts "Pt1, #{fully_contained_pairs_count}"
