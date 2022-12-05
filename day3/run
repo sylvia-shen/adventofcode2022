@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+LOWERCASE_TYPE_PRIORITY_MAP = ("a".."z").each_with_index.map { |v, i| [v, i+1] }.to_h
+UPPERCASE_TYPE_PRIORITY_MAP = ("A".."Z").each_with_index.map { |v, i| [v, i+27] }.to_h
+LETTER_TYPE_PRIORITY_MAP = UPPERCASE_TYPE_PRIORITY_MAP.merge(LOWERCASE_TYPE_PRIORITY_MAP)
+GROUP_COUNT = 3
+
+def read_input_file
+  file_path = File.join(File.dirname(__FILE__), "/input")
+  file_data = File.read(file_path)
+end
+
+rucksacks = read_input_file.split("\n")
+
+item_types = rucksacks.map do |rucksack|
+  split_index = rucksack.length / 2
+  first_letters = rucksack[0..(split_index - 1)].split("")
+  second_letters = rucksack[split_index..-1].split("")
+
+  first_letters & second_letters
+end.flatten
+
+sum = item_types.sum { |type| LETTER_TYPE_PRIORITY_MAP[type] }
+puts "Pt.1 #{sum}"
+
+overlap_item_types = (rucksacks.count / GROUP_COUNT).times.reduce([]) do |memo, idx|
+  offset = idx * GROUP_COUNT
+  group = rucksacks[offset..offset + GROUP_COUNT]
+  splited = group.map { |str| str.split("")}
+
+  item = splited[0] & splited[1] & splited[2]
+
+  memo << item.first
+end
+sum = overlap_item_types.sum { |type| LETTER_TYPE_PRIORITY_MAP[type] }
+puts "Pt.2 #{sum}"
