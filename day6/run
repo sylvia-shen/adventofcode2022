@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+require 'pry'
+
+def read_input_file
+  file_path = File.join(File.dirname(__FILE__), "/input")
+  file_data = File.read(file_path)
+end
+
+def retreive_first_marker(data, distinct_count)
+  strings = data.split("")
+  marker = nil
+  (distinct_count...strings.length).to_a.each do |idx|
+    forward_strs = strings[idx-distinct_count...idx]
+
+    next unless forward_strs.uniq!.nil?
+    next if forward_strs.empty?
+    next if forward_strs.include?(strings[idx])
+
+    marker = idx + 1
+    break
+  end
+  strings.count.times.each do |idx|
+
+  end
+  marker
+end
+
+puts "Pt.1 #{retreive_first_marker(read_input_file, 3)}"
+puts "Pt.2 #{retreive_first_marker(read_input_file, 13)}"
