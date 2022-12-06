@@ -11,17 +11,10 @@ def retreive_first_marker(data, distinct_count)
   strings = data.split("")
   marker = nil
   (distinct_count...strings.length).to_a.each do |idx|
-    forward_strs = strings[idx-distinct_count...idx]
-
-    next unless forward_strs.uniq!.nil?
-    next if forward_strs.empty?
-    next if forward_strs.include?(strings[idx])
-
-    marker = idx + 1
-    break
-  end
-  strings.count.times.each do |idx|
-
+    if strings[idx-distinct_count..idx].uniq!.nil?
+      marker = idx + 1
+      break
+    end
   end
   marker
 end
