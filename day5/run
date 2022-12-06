@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'pry'
+
+def read_input_file
+  file_path = File.join(File.dirname(__FILE__), "/input")
+  file_data = File.read(file_path)
+end
+
+def extract_stacks_and_moves(data)
+  splitted_data = data.split("\n\n")
+
+  splitted_stacks = splitted_data[0].split("\n")
+  max_stack_count = splitted_stacks[-1].split(" ").last.to_i
+  lines = splitted_stacks[0..-2].reverse
+
+  stacks = (1..max_stack_count).reduce({}) do |memo, num|
+    crate_index = (num - 1) * 4 + 1
+    lines.each do |line|
+      crate = line[crate_index].strip
+      memo[num] = [] if memo[num].nil?
+      break if crate.empty?
+      memo[num] << crate
+    end
+    memo
+  end
+
+  moves = splitted_data[1].split("\n").reduce([]) do |memo, desc|
+    splitted = desc.split(" ")
+    memo << {
+      from: splitted[3].to_i,
+      to: splitted[5].to_i,
+      count: splitted[1].to_i
+    }
+    memo
+  end
+
+  [stacks, moves]
+end
+
+def move(stacks, moves, reverse:)
+  stacks = stacks.dup
+  moves.reduce(stacks) do |acc, move|
+    count = acc[move[:from]].count >= move[:count] ? move[:count] : acc[move[:from]].count
+    moved = acc[move[:from]].empty? ? [] : acc[move[:from]][-count..-1]
+    moved = moved.reverse if reverse
+    acc[move[:from]] = acc[move[:from]][0...-count]
+    acc[move[:to]] = acc[move[:to]] + moved
+    acc
+  end
+end
+
+stacks, moves = extract_stacks_and_moves(read_input_file)
+top_crates = move(stacks, moves, reverse: true).values.map(&:last).compact.join("")
+puts "Pt.1 #{top_crates}"
+
+top_crates = move(stacks, moves, reverse: false).values.map(&:last).compact.join("")
+puts "Pt.2 #{top_crates}"
