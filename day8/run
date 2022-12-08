@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+
+def read_input_data
+  file_path = File.join(File.dirname(__FILE__), "/input")
+  File.read(file_path).split("\n").map { |line| line.split('').map(&:to_i) }
+end
+
+require 'pry'
+
+def prepare_data(data)
+  transposed_data = data.transpose
+
+  width = transposed_data.length
+  height = data.length
+
+  [transposed_data, width, height]
+end
+
+def can_see_from_trees?(tree_height, other_tree_heights)
+  other_tree_heights.all? { |h| h < tree_height}
+end
+
+def calculate_trees_count(data)
+  transposed_data, width, height = prepare_data(data)
+  count = height * 2 + (width -2) * 2
+
+  (1...height-1).to_a.each do |row_idx|
+    (1...width-1).to_a.each do |column_idx|
+      v = data[row_idx][column_idx]
+
+      if can_see_from_trees?(v, data[row_idx][0...column_idx]) ||
+        can_see_from_trees?(v, data[row_idx][column_idx+1..-1]) ||
+        can_see_from_trees?(v, transposed_data[column_idx][0...row_idx]) ||
+        can_see_from_trees?(v, transposed_data[column_idx][row_idx+1..-1])
+        count+=1
+      end
+    end
+  end
+
+  count
+end
+
+def get_see_trees_count(tree_height, other_trees_heights)
+  idx = other_trees_heights.index { |i| i >= tree_height }
+  count = other_trees_heights[0..idx].count
+
+  count.zero? ? 1 : count
+end
+
+def calculate_scenic_score(data)
+  transposed_data, width, height = prepare_data(data)
+
+  max = 0
+  (1...height-1).to_a.each do |row_idx|
+    (1...width-1).to_a.each do |column_idx|
+      v = data[row_idx][column_idx]
+
+      left = get_see_trees_count(v, data[row_idx][0...column_idx].reverse)
+      right = get_see_trees_count(v, data[row_idx][column_idx+1..-1])
+      up = get_see_trees_count(v, transposed_data[column_idx][0...row_idx].reverse)
+      down = get_see_trees_count(v, transposed_data[column_idx][row_idx+1..-1])
+
+      score = left * right * up * down
+      max = score if score > max
+    end
+  end
+  max
+end
+
+puts "Pt.1 #{calculate_trees_count(read_input_data)}"
+puts "Pt.2 #{calculate_scenic_score(read_input_data)}"
