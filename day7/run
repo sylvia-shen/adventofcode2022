@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+TOTAL_SPACE = 70000000
+UPGRADE_REQUIRED_SPACE = 30000000
+MAXIMUM_DIRECTORY_SIZE = 100000
+
+def read_input_file
+  file_path = File.join(File.dirname(__FILE__), "/input")
+  File.read(file_path).split("\n")
+end
+
+dir_path = []
+
+folder_space_sum = read_input_file.reduce({}) do |memo, command|
+  splitted = command.split(' ')
+
+  case splitted[0]
+  when '$'
+    case splitted[1]
+    when 'cd'
+      case splitted[2]
+      when '..'
+        dir_path.pop
+      when '/'
+        dir_path = ['/']
+      else
+        dir_path << splitted[2]
+      end
+    end
+  when 'dir'
+  else
+    dir_path.each_with_index do |_, idx|
+      key = dir_path[0..idx].join('-')
+      file_size = splitted[0].to_i
+      memo[key] = memo[key] ? (memo[key] + file_size) : file_size
+    end
+  end
+
+  memo
+end
+
+sum_space = folder_space_sum.values.select { |sum| sum <=  MAXIMUM_DIRECTORY_SIZE}.sum
+puts "Pt.1 #{sum_space}"
+
+used_space = folder_space_sum.values.sum
+free_space = TOTAL_SPACE - folder_space_sum['/']
+needed_space = UPGRADE_REQUIRED_SPACE - free_space
+min_space = folder_space_sum.values.select { |s| s > needed_space }.min
+puts "Pt.2 #{min_space}"
